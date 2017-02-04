@@ -7,6 +7,11 @@
     <script src='https://code.jquery.com/jquery-3.1.1.min.js'></script>
     <script src='https://code.jquery.com/ui/1.12.1/jquery-ui.min.js'></script>
     <script src='https://cdn.rawgit.com/twitter/twitter-text/master/js/twitter-text.js'></script>
+    <style>
+#res > div:hover {
+  background-color: #fd4;
+}
+    </style>
   </head>
   <body>
     <form id='twtform' action='/tweet' method='post'>
@@ -25,15 +30,18 @@ var format_tweet = function(tweet, header){
   if('retweeted_status' in tweet){
     return format_tweet(tweet['retweeted_status'], twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}).replace(/: .+/, ': '));
   }else{
-    var res = $('<div>').css('clear', 'both')
+    var res = $('<div>')
+      .css({
+        'clear': 'both'
+      })
       .attr('data-tweet-id', tweet['id_str'])
-      .append(
-          $('<p>').html((header === undefined ? '' : header) + twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']})).css('float', 'left'))
-      .append($('<input type="button">').button().val('削除').click(function(){
+      .append($('<input type="button">').button().val('削除').css('float', 'right').click(function(){
         $.get('/destroy', {id: $(this).parent('div').attr('data-tweet-id')}, function(result){
           $('#res > div[data-tweet-id="' + result['id_str'] + '"]').remove();
         });
-      }));
+      }))
+      .append(
+          (header === undefined ? '' : header) + twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}));
     if('media' in tweet['entities']){
       var cont = $('<div>').css('clear', 'both').appendTo(res);
       ('expanded_entites' in tweet ? tweet['expanded_entities'] : tweet['entities'])['media'].forEach(function(elem){
