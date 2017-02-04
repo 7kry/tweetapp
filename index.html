@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang='ja'>
+  <head>
+    <meta charset='utf-8' />
+    <title>tweetapp</title>
+    <link rel='stylesheet' href='https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css' />
+    <script src='https://code.jquery.com/jquery-3.1.1.min.js'></script>
+    <script src='https://code.jquery.com/ui/1.12.1/jquery-ui.min.js'></script>
+    <script src='https://cdn.rawgit.com/twitter/twitter-text/master/js/twitter-text.js'></script>
+  </head>
+  <body>
+    <form id='twtform' action='/tweet' method='post'>
+      <textarea name='text' rows='5' cols='100' id='twtbox'></textarea>
+      <input type='submit' value='0' id='twtbtn' />
+    </form>
+    <hr />
+    <div id='res'></div>
+    <script>
+var reflesh_count = function(){
+  $('#twtbtn').val(twttr.txt.getTweetLength($('#twtbox').val()));
+};
+$('#twtbox').addClass('ui-widget ui-corner-all').change(reflesh_count).keypress(reflesh_count).keyup(reflesh_count).mousedown(reflesh_count).mouseup(reflesh_count).mouseover(reflesh_count);
+$('#twtbtn').button();
+$('#twtform').on('submit', function(event) {
+  event.preventDefault();
+  $.post(
+      function(result){
+      },
+      'json'
+      );
+  $.ajax({
+    url: $(this).attr('action'),
+    type: $(this).attr('method'),
+    dataType : "json",
+    data: $(this).serializeArray(),
+    timeout: 30000,
+    beforeSend: function(xhr, settings) {
+      $('#twtbtn').attr('disabled', true);
+    },
+    complete: function(xhr, textStatus) {
+      $('#twtbtn').attr('disabled', false);
+    },
+    success: function(result, textStatus, xhr) {
+      if(xhr.status === 200){
+        $('#res').append($('<div>').text(result['text']));
+        $('#twtbox').val('');
+        reflesh_count();
+      }else{
+        alert('送信失敗');
+      }
+    },
+    error: function(xhr, textStatus, error) {
+      alert('送信失敗');
+    }
+  });
+});
+    </script>
+  </body>
+</html>
