@@ -40,7 +40,7 @@ $('#twtform').on('submit', function(event) {
 				$('<div>')
 					.attr('data-tweet-id', result['id'])
 					.append(
-						$('<p>').text(result['text']))
+						$('<p>').html(twttr.txt.autoLink(result['text'], {urlEntities: result['entities']['urls']})))
 					.prependTo('#res');
 				$('#twtbox').val('');
 				reflesh_count();
