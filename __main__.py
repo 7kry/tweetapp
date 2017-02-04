@@ -25,4 +25,8 @@ def index():
 def tweet():
   return api.update_status(bottle.request.forms.decode().get('text'))
 
+@bottle.get('/latest')
+def latest():
+  return {'statuses': api.user_timeline(count = 200)}
+
 bottle.run(host = conf['bind']['host'], port = conf['bind']['port'])

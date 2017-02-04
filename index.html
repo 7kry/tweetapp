@@ -21,11 +21,23 @@ var reflesh_count = function(){
 };
 $('#twtbox').addClass('ui-widget ui-corner-all').change(reflesh_count).keypress(reflesh_count).keyup(reflesh_count).mousedown(reflesh_count).mouseup(reflesh_count).mouseover(reflesh_count);
 $('#twtbtn').button();
-var format_tweet = function(tweet){
-	return $('<div>')
-		.attr('data-tweet-id', tweet['id'])
-		.append(
-			$('<p>').html(twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']})))
+var format_tweet = function(tweet, header){
+	if('retweeted_status' in tweet){
+		return format_tweet(tweet['retweeted_status'], twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}).replace(/: .+/, ': '));
+	}else{
+		var res = $('<div>')
+			.attr('data-tweet-id', tweet['id'])
+			.append(
+				$('<p>').html((header === undefined ? '' : header) + twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']})))
+		if('media' in tweet['entities']){
+			('expanded_entites' in tweet ? tweet['expanded_entities'] : tweet['entities'])['media'].forEach(function(elem){
+				$('<a>').attr('href', elem['media_url_https'] + ':large').attr('target', '_blank').append(
+					$('<img>').attr('src', elem['media_url_https']).css({height: 'auto', width: '25%'}))
+				.appendTo(res);
+			});
+		}
+		return res;
+	}
 };
 $('#twtform').on('submit', function(event) {
 	event.preventDefault();
@@ -54,6 +66,11 @@ $('#twtform').on('submit', function(event) {
 		error: function(xhr, textStatus, error) {
 			alert('送信失敗');
 		}
+	});
+});
+$.get('/latest', function(result){
+	result['statuses'].forEach(function(elem){
+		format_tweet(elem).appendTo('#res');
 	});
 });
 	</script>
