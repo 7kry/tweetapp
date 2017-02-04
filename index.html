@@ -42,7 +42,7 @@ $('#twtform').on('submit', function(event) {
     },
     success: function(result, textStatus, xhr) {
       if(xhr.status === 200){
-        $('#res').append($('<div>').text(result['text']));
+        $('#res').prepend($('<div>').text(result['text']));
         $('#twtbox').val('');
         reflesh_count();
       }else{
