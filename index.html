@@ -32,6 +32,8 @@ var format_tweet = function(tweet, header){
   if('retweeted_status' in tweet){
     return format_tweet(tweet['retweeted_status'], twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}).replace(/: .+/, ': '));
   }else{
+    var text = $('<div>').html((header === undefined ? '' : header) + twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}));
+    text.find('a').attr('target', '_blank');
     var res = $('<div>')
       .css({
         'clear': 'both'
@@ -42,8 +44,7 @@ var format_tweet = function(tweet, header){
           $('#res > div[data-tweet-id="' + result['id_str'] + '"]').remove();
         });
       }))
-      .append(
-          (header === undefined ? '' : header) + twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}));
+      .append(text);
     if('media' in tweet['entities']){
       var cont = $('<div>').css('clear', 'both').appendTo(res);
       ('expanded_entites' in tweet ? tweet['expanded_entities'] : tweet['entities'])['media'].forEach(function(elem){
