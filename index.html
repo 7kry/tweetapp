@@ -22,39 +22,38 @@ var reflesh_count = function(){
 $('#twtbox').addClass('ui-widget ui-corner-all').change(reflesh_count).keypress(reflesh_count).keyup(reflesh_count).mousedown(reflesh_count).mouseup(reflesh_count).mouseover(reflesh_count);
 $('#twtbtn').button();
 $('#twtform').on('submit', function(event) {
-  event.preventDefault();
-  $.post(
-      function(result){
-      },
-      'json'
-      );
-  $.ajax({
-    url: $(this).attr('action'),
-    type: $(this).attr('method'),
-    dataType : "json",
-    data: $(this).serializeArray(),
-    timeout: 30000,
-    beforeSend: function(xhr, settings) {
-      $('#twtbtn').attr('disabled', true);
-    },
-    complete: function(xhr, textStatus) {
-      $('#twtbtn').attr('disabled', false);
-    },
-    success: function(result, textStatus, xhr) {
-      if(xhr.status === 200){
-        $('#res').prepend($('<div>').text(result['text']));
-        $('#twtbox').val('');
-        reflesh_count();
-        $('#twtbox').focus();
-      }else{
-        alert('送信失敗');
-      }
-    },
-    error: function(xhr, textStatus, error) {
-      alert('送信失敗');
-    }
-  });
+	event.preventDefault();
+	$.ajax({
+		url: $(this).attr('action'),
+		type: $(this).attr('method'),
+		dataType : "json",
+		data: $(this).serializeArray(),
+		timeout: 30000,
+		beforeSend: function(xhr, settings) {
+			$('#twtbtn').attr('disabled', true);
+		},
+		complete: function(xhr, textStatus) {
+			$('#twtbtn').attr('disabled', false);
+		},
+		success: function(result, textStatus, xhr) {
+			if(xhr.status === 200){
+				$('<div>')
+					.attr('data-tweet-id', result['id'])
+					.append(
+						$('<p>').text(result['text']))
+					.prependTo('#res');
+				$('#twtbox').val('');
+				reflesh_count();
+				$('#twtbox').focus();
+			}else{
+				alert('送信失敗');
+			}
+		},
+		error: function(xhr, textStatus, error) {
+			alert('送信失敗');
+		}
+	});
 });
-    </script>
+	</script>
   </body>
 </html>
