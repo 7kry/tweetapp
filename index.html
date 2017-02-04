@@ -45,6 +45,7 @@ $('#twtform').on('submit', function(event) {
         $('#res').prepend($('<div>').text(result['text']));
         $('#twtbox').val('');
         reflesh_count();
+        $('#twtbox').focus();
       }else{
         alert('送信失敗');
       }
