@@ -25,8 +25,14 @@ def index():
 def tweet():
   return api.update_status(bottle.request.forms.decode().get('text'))
 
-@bottle.get('/latest')
+@bottle.route('/latest')
 def latest():
   return {'statuses': api.user_timeline(count = 200)}
+
+@bottle.get('/destroy')
+def destroy():
+  target_id = int(bottle.request.query.get('id'))
+  print(target_id)
+  return api.destroy_status(target_id)
 
 bottle.run(host = conf['bind']['host'], port = conf['bind']['port'])

@@ -22,57 +22,63 @@ var reflesh_count = function(){
 $('#twtbox').addClass('ui-widget ui-corner-all').change(reflesh_count).keypress(reflesh_count).keyup(reflesh_count).mousedown(reflesh_count).mouseup(reflesh_count).mouseover(reflesh_count);
 $('#twtbtn').button();
 var format_tweet = function(tweet, header){
-	if('retweeted_status' in tweet){
-		return format_tweet(tweet['retweeted_status'], twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}).replace(/: .+/, ': '));
-	}else{
-		var res = $('<div>')
-			.attr('data-tweet-id', tweet['id'])
-			.append(
-				$('<p>').html((header === undefined ? '' : header) + twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']})))
-		if('media' in tweet['entities']){
-			('expanded_entites' in tweet ? tweet['expanded_entities'] : tweet['entities'])['media'].forEach(function(elem){
-				$('<a>').attr('href', elem['media_url_https'] + ':large').attr('target', '_blank').append(
-					$('<img>').attr('src', elem['media_url_https']).css({height: 'auto', width: '25%'}))
-				.appendTo(res);
-			});
-		}
-		return res;
-	}
+  if('retweeted_status' in tweet){
+    return format_tweet(tweet['retweeted_status'], twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}).replace(/: .+/, ': '));
+  }else{
+    var res = $('<div>').css('clear', 'both')
+      .attr('data-tweet-id', tweet['id_str'])
+      .append(
+          $('<p>').html((header === undefined ? '' : header) + twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']})).css('float', 'left'))
+      .append($('<input type="button">').button().val('削除').click(function(){
+        $.get('/destroy', {id: $(this).parent('div').attr('data-tweet-id')}, function(result){
+          $('#res > div[data-tweet-id="' + result['id_str'] + '"]').remove();
+        });
+      }));
+    if('media' in tweet['entities']){
+      var cont = $('<div>').css('clear', 'both').appendTo(res);
+      ('expanded_entites' in tweet ? tweet['expanded_entities'] : tweet['entities'])['media'].forEach(function(elem){
+        $('<a>').css('clear', 'both').attr('href', elem['media_url_https'] + ':large').attr('target', '_blank').append(
+            $('<img>').attr('src', elem['media_url_https']).css({height: 'auto', width: '25%'}))
+          .appendTo(cont);
+      });
+    }
+    return res;
+  }
 };
 $('#twtform').on('submit', function(event) {
-	event.preventDefault();
-	$.ajax({
-		url: $(this).attr('action'),
-		type: $(this).attr('method'),
-		dataType : "json",
-		data: $(this).serializeArray(),
-		timeout: 30000,
-		beforeSend: function(xhr, settings) {
-			$('#twtbtn').attr('disabled', true);
-		},
-		complete: function(xhr, textStatus) {
-			$('#twtbtn').attr('disabled', false);
-		},
-		success: function(result, textStatus, xhr) {
-			if(xhr.status === 200){
-				format_tweet(result).prependTo('#res');
-				$('#twtbox').val('');
-				reflesh_count();
-				$('#twtbox').focus();
-			}else{
-				alert('送信失敗');
-			}
-		},
-		error: function(xhr, textStatus, error) {
-			alert('送信失敗');
-		}
-	});
+  event.preventDefault();
+  $.ajax({
+    url: $(this).attr('action'),
+    type: $(this).attr('method'),
+    dataType : "json",
+    data: $(this).serializeArray(),
+    timeout: 30000,
+    beforeSend: function(xhr, settings) {
+      $('#twtbtn').attr('disabled', true);
+    },
+    complete: function(xhr, textStatus) {
+      $('#twtbtn').attr('disabled', false);
+    },
+    success: function(result, textStatus, xhr) {
+      if(xhr.status === 200){
+        format_tweet(result).prependTo('#res');
+        $('#twtbox').val('');
+        reflesh_count();
+        $('#twtbox').focus();
+      }else{
+        alert('送信失敗');
+      }
+    },
+    error: function(xhr, textStatus, error) {
+      alert('送信失敗');
+    }
+  });
 });
 $.get('/latest', function(result){
-	result['statuses'].forEach(function(elem){
-		format_tweet(elem).appendTo('#res');
-	});
+  result['statuses'].forEach(function(elem){
+    format_tweet(elem).appendTo('#res');
+  });
 });
-	</script>
+    </script>
   </body>
 </html>
