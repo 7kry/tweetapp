@@ -3,6 +3,7 @@
   <head>
     <meta charset='utf-8' />
     <title>tweetapp</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel='stylesheet' href='https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css' />
     <script src='https://code.jquery.com/jquery-3.1.1.min.js'></script>
     <script src='https://code.jquery.com/ui/1.12.1/jquery-ui.min.js'></script>
@@ -15,7 +16,7 @@
   </head>
   <body>
     <form id='twtform' action='/tweet' method='post'>
-      <textarea name='text' rows='5' cols='100' id='twtbox'></textarea>
+      <textarea name='text' id='twtbox'></textarea>
       <input type='submit' value='0' id='twtbtn' />
     </form>
     <hr />
@@ -24,7 +25,8 @@
 var reflesh_count = function(){
   $('#twtbtn').val(twttr.txt.getTweetLength($('#twtbox').val()));
 };
-$('#twtbox').addClass('ui-widget ui-corner-all').change(reflesh_count).keypress(reflesh_count).keyup(reflesh_count).mousedown(reflesh_count).mouseup(reflesh_count).mouseover(reflesh_count);
+$('#twtbox').addClass('ui-widget ui-corner-all').css({'width': '100%'}).attr('rows', '7')
+  .change(reflesh_count).keypress(reflesh_count).keyup(reflesh_count).mousedown(reflesh_count).mouseup(reflesh_count).mouseover(reflesh_count);
 $('#twtbtn').button();
 var format_tweet = function(tweet, header){
   if('retweeted_status' in tweet){
