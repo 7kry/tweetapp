@@ -15,9 +15,10 @@
     </style>
   </head>
   <body>
-    <form id='twtform' action='/tweet' method='post'>
+    <form id='twtform' enctype='multipart/form-data' action='/tweet' method='post' acceptcharset="utf-8">
       <textarea name='text' id='twtbox'></textarea>
       <input type='submit' value='0' id='twtbtn' />
+      <input type='file' name='media[]' multiple accept="image/*" />
     </form>
     <hr />
     <div id='res'></div>
@@ -59,12 +60,14 @@ var format_tweet = function(tweet, header){
 };
 $('#twtform').on('submit', function(event) {
   event.preventDefault();
-  $.ajax({
-    url: $(this).attr('action'),
+  $.ajax(
+    $(this).attr('action'),
+    {
     type: $(this).attr('method'),
     dataType : "json",
-    data: $(this).serializeArray(),
-    timeout: 30000,
+    data: new FormData($('#twtform').get(0)),
+    processData: false,
+    contentType: false,
     beforeSend: function(xhr, settings) {
       $('#twtbtn').attr('disabled', true);
     },
