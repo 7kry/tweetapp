@@ -35,6 +35,7 @@ var format_tweet = function(tweet, header){
     var text = $('<div>').html((header === undefined ? '' : header) + twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}));
     text.find('a').attr('target', '_blank');
     var res = $('<div>')
+      .attr('data-json', JSON.stringify(tweet))
       .css({
         'clear': 'both'
       })
@@ -47,7 +48,7 @@ var format_tweet = function(tweet, header){
       .append(text);
     if('media' in tweet['entities']){
       var cont = $('<div>').css('clear', 'both').appendTo(res);
-      ('expanded_entites' in tweet ? tweet['expanded_entities'] : tweet['entities'])['media'].forEach(function(elem){
+      ('extended_entities' in tweet ? tweet['extended_entities'] : tweet['entities'])['media'].forEach(function(elem){
         $('<a>').css('clear', 'both').attr('href', elem['media_url_https'] + ':large').attr('target', '_blank').append(
             $('<img>').attr('src', elem['media_url_https']).css({height: 'auto', width: '25%'}))
           .appendTo(cont);
