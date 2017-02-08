@@ -15,19 +15,34 @@
     </style>
   </head>
   <body>
-    <form id='twtform' enctype='multipart/form-data' action='/tweet' method='post' acceptcharset="utf-8">
-      <textarea name='text' id='twtbox'></textarea>
-      <input type='submit' value='0' id='twtbtn' />
-      <input type='file' name='media[]' multiple accept="image/*" />
-    </form>
+    <div id='twtform-switchable'>
+      <ul class='horizontal'>
+        <li><a href="#tab-1">Status</a></li>
+        <li><a href="#tab-2">Retweet</a></li>
+      </ul>
+      <div id='tab-1'>
+        <form id='twtform' enctype='multipart/form-data' action='/tweet' method='post'>
+          <textarea name='text' id='twtbox'></textarea>
+          <input type='submit' value='0' id='twtbtn' />
+          <input type='file' name='media[]' multiple accept="image/*" />
+        </form>
+      </div>
+      <div id='tab-2'>
+        <form id='rtform' enctype='multipart/form-data' action='/retweet' method='post'>
+          <input type='text' name='target' />
+          <input type='submit' value='RT' />
+        </form>
+      </div>
+    </div>
     <hr />
-    <div id='res'></div>
+    <div id='res' style='clear: both'></div>
     <script>
 var reflesh_count = function(){
   $('#twtbtn').val(twttr.txt.getTweetLength($('#twtbox').val()));
 };
+$('#twtform-switchable').tabs({activate: function(){$('form').each(function(){ this.reset(); reflesh_count })}});
 $('#twtbox').addClass('ui-widget ui-corner-all').css({'width': '100%'}).attr('rows', '7')
-  .change(reflesh_count).keypress(reflesh_count).keyup(reflesh_count).mousedown(reflesh_count).mouseup(reflesh_count).mouseover(reflesh_count);
+.change(reflesh_count).keypress(reflesh_count).keyup(reflesh_count).mousedown(reflesh_count).mouseup(reflesh_count).mouseover(reflesh_count);
 $('#twtbtn').button();
 var format_tweet = function(tweet, header){
   if('retweeted_status' in tweet){
@@ -40,13 +55,13 @@ var format_tweet = function(tweet, header){
       .css({
         'clear': 'both'
       })
-      .attr('data-tweet-id', tweet['id_str'])
+    .attr('data-tweet-id', tweet['id_str'])
       .append($('<input type="button">').button().val('削除').css('float', 'right').click(function(){
         $.get('/destroy', {id: $(this).parent('div').attr('data-tweet-id')}, function(result){
           $('#res > div[data-tweet-id="' + result['id_str'] + '"]').remove();
         });
       }))
-      .append(text);
+    .append(text);
     if('media' in tweet['entities']){
       var cont = $('<div>').css('clear', 'both').appendTo(res);
       ('extended_entities' in tweet ? tweet['extended_entities'] : tweet['entities'])['media'].forEach(function(elem){
@@ -61,35 +76,68 @@ var format_tweet = function(tweet, header){
 $('#twtform').on('submit', function(event) {
   event.preventDefault();
   $.ajax(
-    $(this).attr('action'),
-    {
-    type: $(this).attr('method'),
-    dataType : "json",
-    data: new FormData($('#twtform').get(0)),
-    processData: false,
-    contentType: false,
-    beforeSend: function(xhr, settings) {
-      $('#twtbtn').attr('disabled', true);
-    },
-    complete: function(xhr, textStatus) {
-      $('#twtbtn').attr('disabled', false);
-    },
-    success: function(result, textStatus, xhr) {
-      if(xhr.status === 200){
-        format_tweet(result).prependTo('#res');
-        $('#twtform').get(0).reset();
-        $('#twtbox').val('');
-        reflesh_count();
-        $('#twtbox').focus();
-      }else{
-        alert('送信失敗');
-      }
-    },
-    error: function(xhr, textStatus, error) {
-      alert('送信失敗');
-    }
-  });
+      $(this).attr('action'),
+      {
+        type: $(this).attr('method'),
+        dataType : "json",
+        data: new FormData($('#twtform').get(0)),
+        processData: false,
+        contentType: false,
+        beforeSend: function(xhr, settings) {
+          $('#twtbtn').attr('disabled', true);
+        },
+        complete: function(xhr, textStatus) {
+          $('#twtbtn').attr('disabled', false);
+        },
+        success: function(result, textStatus, xhr) {
+          if(xhr.status === 200){
+            format_tweet(result).prependTo('#res');
+            $('#twtform').get(0).reset();
+            reflesh_count();
+            $('#twtbox').focus();
+          }else{
+            alert('送信失敗');
+          }
+        },
+        error: function(xhr, textStatus, error) {
+          alert('送信失敗');
+        }
+      });
 });
+
+$('#rtform input[type="text"]').addClass('ui-widget ui-corner-all').css('width', '100%');
+$('#rtform input[type="submit"]').button();
+$('#rtform').on('submit', function(event) {
+  event.preventDefault();
+  $.ajax(
+      $(this).attr('action'),
+      {
+        type: $(this).attr('method'),
+        dataType : "json",
+        data: new FormData($('#rtform').get(0)),
+        processData: false,
+        contentType: false,
+        beforeSend: function(xhr, settings) {
+          $('#rtform input[type="submit"]').attr('disabled', true);
+        },
+        complete: function(xhr, textStatus) {
+          $('#rtform input[type="submit"]').attr('disabled', false);
+        },
+        success: function(result, textStatus, xhr) {
+          if(xhr.status === 200){
+            format_tweet(result).prependTo('#res');
+            $('#rtform').get(0).reset();
+            $('#rtform input[type="text"]').focus();
+          }else{
+            alert('送信失敗');
+          }
+        },
+        error: function(xhr, textStatus, error) {
+          alert('送信失敗');
+        }
+      });
+});
+
 $.get('/latest', function(result){
   result['statuses'].forEach(function(elem){
     format_tweet(elem).appendTo('#res');

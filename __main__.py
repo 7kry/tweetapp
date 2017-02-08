@@ -6,6 +6,7 @@ import tweepy
 import tweepy.parsers
 import yaml
 
+import re
 import os
 import sys
 import tempfile
@@ -50,13 +51,22 @@ def index():
 
 @bottle.post('/tweet')
 def tweet():
-  print(list(bottle.request.POST.allitems()))
   if bottle.request.files.get('media[]', None):
     #media_ids = [api.media_upload(file = elem, filename = '%.jpg' % i) for i, elem in enumerate(jpeg_fitsize(item.file) for item in bottle.request.files.getall('media[]'))]
     media_ids = [api.media_upload(file = item.file, filename = item.raw_filename)['media_id_string'] for item in bottle.request.files.getall('media[]')]
   else:
     media_ids = None
   return api.update_status(bottle.request.forms.get('text'), media_ids = media_ids)
+
+@bottle.post('/retweet')
+def retweet():
+  target = bottle.request.forms.get('target')
+  for rx in (re.compile(r'(\d+)'), re.compile(r'https?\:\/\/twitter\.com\/.+\/status(?:es)?\/(\d+)\/?')):
+    m = rx.match(target)
+    print(rx, m)
+    if m:
+      target = int(m.group(1))
+  api.retweet(target)
 
 @bottle.route('/latest')
 def latest():
