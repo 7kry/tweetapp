@@ -24,7 +24,7 @@
         <form id='twtform' enctype='multipart/form-data' action='/tweet' method='post'>
           <textarea name='text' id='twtbox'></textarea>
           <input type='submit' value='0' id='twtbtn' />
-          <input type='file' name='media[]' multiple accept="image/*" />
+          <input type='file' name='media[]' multiple accept="image/*;video/mp4;video/quicktime" />
         </form>
       </div>
       <div id='tab-2'>
@@ -44,14 +44,14 @@ $('#twtform-switchable').tabs({activate: function(){$('form').each(function(){ t
 $('#twtbox').addClass('ui-widget ui-corner-all').css({'width': '100%'}).attr('rows', '7')
 .change(reflesh_count).keypress(reflesh_count).keyup(reflesh_count).mousedown(reflesh_count).mouseup(reflesh_count).mouseover(reflesh_count);
 $('#twtbtn').button();
-var format_tweet = function(tweet, header){
+var format_tweet = function(tweet, header, org){
   if('retweeted_status' in tweet){
-    return format_tweet(tweet['retweeted_status'], twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}).replace(/: .+/, ': '));
+  return format_tweet(tweet['retweeted_status'], twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}).replace(/\<\/a\>: (.|\n)*/, '</a>: '), tweet);
   }else{
-    var text = $('<div>').html((header === undefined ? '' : header) + twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}));
+    var text = $('<div>').html((header === undefined ? '' : header) + twttr.txt.autoLink(tweet['text'], {urlEntities: tweet['entities']['urls']}).replace(/\n/g, "<br/>"));
     text.find('a').attr('target', '_blank');
     var res = $('<div>')
-      .attr('data-json', JSON.stringify(tweet))
+      .attr('data-json', JSON.stringify(org === undefined ? tweet : org))
       .css({
         'clear': 'both'
       })
