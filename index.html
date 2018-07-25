@@ -7,7 +7,7 @@
     <link rel='stylesheet' href='https://code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css' />
     <script src='https://code.jquery.com/jquery-3.1.1.min.js'></script>
     <script src='https://code.jquery.com/ui/1.12.1/jquery-ui.min.js'></script>
-    <script src='https://cdn.rawgit.com/twitter/twitter-text/master/js/twitter-text.js'></script>
+    <script src='https://cdn.rawgit.com/twitter/twitter-text/ae65f9a19a6462dd356ee7ad25bdc44403405270/js/pkg/twitter-text-2.0.5.min.js'></script>
     <style>
 #res > div:hover {
   background-color: #fd4;
@@ -40,7 +40,7 @@
 var reflesh_count = function(){
   $('#twtbtn').val(twttr.txt.getTweetLength($('#twtbox').val()));
 };
-$('#twtform-switchable').tabs({activate: function(){$('form').each(function(){ this.reset(); reflesh_count })}});
+$('#twtform-switchable').tabs({activate: function(){$('form').each(function(){ this.reset(); reflesh_count() })}});
 $('#twtbox').addClass('ui-widget ui-corner-all').css({'width': '100%'}).attr('rows', '7')
 .change(reflesh_count).keypress(reflesh_count).keyup(reflesh_count).mousedown(reflesh_count).mouseup(reflesh_count).mouseover(reflesh_count);
 $('#twtbtn').button();
